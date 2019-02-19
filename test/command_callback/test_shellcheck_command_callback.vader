@@ -2,7 +2,7 @@ Before:
   call ale#assert#SetUpLinterTest('sh', 'shellcheck')
   call ale#test#SetFilename('test.sh')
 
-  let b:prefix = 'cd ' . ale#Escape(ale#path#Simplify(g:dir)) . ' && '
+  let b:prefix = ale#path#CdString(ale#path#Simplify(g:dir))
   let b:suffix = ' -f gcc -'
 
 After:
@@ -32,6 +32,18 @@ Execute(The shellcheck command should include the dialect):
 
   AssertLinter 'shellcheck',
   \ b:prefix . ale#Escape('shellcheck') . ' -s bash' . b:suffix
+
+Execute(The shellcheck command should use ale_sh_shellcheck_dialect):
+  let b:ale_sh_shellcheck_dialect = 'ksh93'
+
+  AssertLinter 'shellcheck',
+  \ b:prefix . ale#Escape('shellcheck') . ' -s ksh93' . b:suffix
+
+Execute(The shellcheck command should allow unspecified dialect):
+  let b:ale_sh_shellcheck_dialect = ''
+
+  AssertLinter 'shellcheck',
+  \ b:prefix . ale#Escape('shellcheck') . b:suffix
 
 Execute(The shellcheck command should include the dialect before options and exclusions):
   let b:is_bash = 1
